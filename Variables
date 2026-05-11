@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+// parameter variables
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'select the branch name' )
+        booleanParam( name: 'RUN_TESTS', defaultValue: true, description: 'Run test ?')
+    }
+// custom variables
+    environment {
+        REGION = 'ap-south-1'
+        BULD_VERSION = "1.0.${env.BUILD_ID}"
+    }
+    stages {
+// Built in valiables
+        stage('Built in vars') {
+            steps {
+                echo "Build number: ${env.BUILD_NUMBER}"
+                echo "Build ID: ${env.BUILD_ID}"
+                echo "Job name: ${env.JOB_NAME}"
+                echo "Build workspace: ${env.WORKSPACE}"
+                echo "Node name: ${env.NODE_NAME}"
+            }
+        }
+// parameter variables
+        stage('pipeline parameters') {
+            steps {
+                echo "Deployment env: ${params.env_name}"
+                echo "Testing: ${params.RUN_TESTS}"
+            }
+        }
+        stage('Custom variables') {
+            steps {
+                echo "Region : ${env.REGION}"
+                echo "Build version: ${env.BULD_VERSION}"
+            }
+        }
+        stage('Detect Branch') {
+    steps {
+        script {
+            // Set deploy target based on branch at runtime
+            if (env.BRANCH_NAME == 'main') {
+                env.DEPLOY_ENV = 'production'
+            } else if (env.BRANCH_NAME == 'develop') {
+                env.DEPLOY_ENV = 'staging'
+            } else {
+                env.DEPLOY_ENV = 'dev'
+            }
+
+            echo "Deploying to: ${env.DEPLOY_ENV}"
+        }
+    }
+}
+        stage('Dynamic custom variables') {
+            steps {
+                script {
+                env.RUNTIME_VAR = "runtime-${env.BUILD_NUMBER}"
+                echo "Dynamic: ${env.RUNTIME_VAR}"
+                }
+            }
+        }
+    }
+}
