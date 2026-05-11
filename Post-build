@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('stage1') {
+            steps {
+                echo 'Hello World from A'
+            }
+        }
+        stage('stage2') {
+            steps {
+                echo 'Hello World from A stage2'
+            }
+        }
+    }
+    post {
+        success {
+            build job: 'webhook-example'
+        }
+    }
+}
