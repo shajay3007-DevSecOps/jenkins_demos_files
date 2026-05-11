@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+    tools {
+        maven 'maven3.9'
+        jdk 'jdk17'
+    }
+    parameters {
+        string (
+        name: 'BRANCH_NAME', 
+        defaultValue: 'main', 
+        description: 'git branch select'
+        )
+        
+        booleanParam(
+        name: 'RUN_TEST', 
+        defaultValue: true, 
+        description: 'run the test case'
+        )
+        
+       choice (
+       name: 'BUILD_TYPE', 
+       choices: ['debug','release'], 
+       description: 'run the test case'
+       ) 
+    }
+    stages {
+        stage('gitcheck out') {
+            steps {
+            git branch: "${params.BRANCH_NAME}", url: 'https://github.com/shajay3007-DevSecOps/Boardgame-1.git'
+            }
+        }
+        stage('compile') {
+            steps {
+            echo "compiling the project......"
+            sh 'mv n compile'
+            }
+        }
+        stage('test') {
+           when {
+               expression { return params.RUN_TEST }
+           } 
+           steps {
+            echo "testing the code"
+            sh 'mvn test'
+            }
+        }
+        stage('Build') {
+            steps {
+            echo "packaging the project......${params.BUILD_TYPE}"
+            sh "mvn package -P ${params.BUILD_TYPE}"
+            }
+    }
+}
+    post {
+        success {
+            echo "Pipeline is success full"
+        }
+        failure {
+            echo "Pipeline is failed"
+        }
+        always {
+           echo "Job completed at: ${new Date()}"
+        }
+    }
+}
