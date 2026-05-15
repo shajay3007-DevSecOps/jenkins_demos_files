@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    tools {
+        maven 'maven3.9'
+        jdk 'jdk17'
+    }
+    parameters {
+        choice(name: 'environment', choices: ["UAT", "QA", "Prod"],  description: "deploy on selected env")
+    }
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+         stage('deploy') {
+            steps {
+                script{
+                    if (params.environment == 'UAT'){
+                        echo 'deploy on UAT'
+                    }
+                    else if (params.environment == 'QA'){
+                        echo 'deploy on QA'
+                    }
+                    else if (params.environment == 'Prod'){
+                        echo 'deploy on Prod'
+                    }
+                }
+            }
+        }
+    }
+}
